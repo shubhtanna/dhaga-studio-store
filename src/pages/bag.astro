@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro'
+import { items, DELIVERY } from '../data/shop.js'
+const names = Object.fromEntries(items.map((i) => [i.sku, { name: i.name, region: i.region, slug: i.slug, tone: i.tone, collection: i.collection }]))
+---
+<Base title="Your bag">
+  <section class="wrap">
+    <h1 class="title">Your bag</h1>
+    <div id="bag" data-names={JSON.stringify(names)} data-free={DELIVERY.freeFrom} data-fee={DELIVERY.fee}>
+      <p class="dim">Opening your bag…</p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { getBag, saveBag, loadCatalog, rupees } from '../scripts/bag.js'
+  const root = document.getElementById('bag')
+  const names = JSON.parse(root.dataset.names)
+  const FREE = Number(root.dataset.free)
+  const FEE = Number(root.dataset.fee)
+  const weaves = { scarves: 'stripes', shawls: 'checks', dupattas: 'diamonds', stoles: 'dots', home: 'lines' }
+
+  async function draw() {
+    const live = await loadCatalog()
+    const bag = getBag()
+    const skus = Object.keys(bag).filter((s) => names[s] && bag[s] > 0)
+    if (!skus.length) {
+      root.innerHTML = '<p class="dim">Nothing in your bag yet.</p><a class="btn" href="/">Start browsing</a>'
+      return
+    }
+    const subtotal = skus.reduce((s, k) => s + live[k].price * bag[k], 0)
+    const delivery = subtotal >= FREE ? 0 : FEE
+    root.innerHTML = `<div class="bag-grid"><div>${skus.map((k) => `
+      <div class="row">
+        <div class="swatch" data-weave="${weaves[names[k].collection]}" style="--tone:${names[k].tone}"></div>
+        <div><a href="/p/${names[k].slug}">${names[k].name}</a><small>${names[k].region}</small></div>
+        <div class="stepper"><button type="button" data-less="${k}">−</button><span>${bag[k]}</span><button type="button" data-more="${k}">+</button></div>
+        <strong>${rupees(live[k].price * bag[k])}</strong>
+      </div>`).join('')}</div>
+      <aside class="total-box">
+        <p><span>Subtotal</span><span>${rupees(subtotal)}</span></p>
+        <p><span>Delivery</span><span>${delivery ? rupees(delivery) : 'Free'}</span></p>
+        <p class="grand"><span>Total</span><span>${rupees(subtotal + delivery)}</span></p>
+        ${delivery ? `<p class="note">Add ${rupees(FREE - subtotal)} more for free delivery.</p>` : ''}
+        <a class="btn wide" href="/checkout">Go to checkout</a>
+      </aside></div>`
+  }
+
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest('button')
+    if (!b) return
+    const bag = getBag()
+    const k = b.dataset.less || b.dataset.more
+    if (!k) return
+    bag[k] = Math.max(0, Math.min(5, (bag[k] || 0) + (b.dataset.more ? 1 : -1)))
+    if (!bag[k]) delete bag[k]
+    saveBag(bag)
+    draw()
+  })
+  draw()
+</script>

@@ -1,0 +1,51 @@
+---
+import Base from '../../layouts/Base.astro'
+import Tile from '../../components/Tile.astro'
+import { COLLECTIONS, inCollection } from '../../data/shop.js'
+
+export function getStaticPaths() {
+  return COLLECTIONS.map((c) => ({ params: { slug: c.slug }, props: { collection: c } }))
+}
+const { collection } = Astro.props
+const list = inCollection(collection.slug)
+---
+<Base title={collection.name} description={`${collection.name} at Dhaga Studio. ${collection.blurb}`}>
+  <section class="wrap">
+    <p class="crumbs"><a href="/">Home</a> / {collection.name}</p>
+    <h1 class="title">{collection.name}</h1>
+    <p class="dim">{collection.blurb} {list.length} pieces.</p>
+    <div class="tools">
+      <label>Sort
+        <select id="order">
+          <option value="">Our pick</option>
+          <option value="low">Price: low to high</option>
+          <option value="high">Price: high to low</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="onlyStock" /> In stock only</label>
+    </div>
+    <div class="shelf" id="shelf">{list.map((i) => <Tile item={i} />)}</div>
+  </section>
+</Base>
+
+<script>
+  import { fillCosts, bindAddButtons, loadCatalog } from '../../scripts/bag.js'
+  fillCosts()
+  bindAddButtons()
+
+  const shelf = document.getElementById('shelf')
+  const tiles = [...shelf.children]
+  const order = document.getElementById('order')
+  const onlyStock = document.getElementById('onlyStock')
+
+  async function arrange() {
+    const live = await loadCatalog()
+    const price = (t) => live[t.dataset.sku].price
+    let shown = tiles.filter((t) => !onlyStock.checked || live[t.dataset.sku].stock > 0)
+    if (order.value === 'low') shown = [...shown].sort((a, b) => price(a) - price(b))
+    if (order.value === 'high') shown = [...shown].sort((a, b) => price(b) - price(a))
+    shelf.replaceChildren(...shown)
+  }
+  order.addEventListener('change', arrange)
+  onlyStock.addEventListener('change', arrange)
+</script>

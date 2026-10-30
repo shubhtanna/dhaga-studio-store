@@ -1,56 +1,59 @@
 ---
-import Layout from '../layouts/Layout.astro'
-import ProductCard from '../components/ProductCard.astro'
-import { allProducts, CATEGORIES, inCategory } from '../data/store.js'
-const bestsellers = ['indigo-block-print-scarf', 'pashmina-blend-shawl', 'ikat-silk-dupatta', 'khadi-cotton-stole', 'kantha-reversible-wrap', 'chanderi-dupatta', 'block-print-cushion-cover', 'bandhani-georgette-scarf']
-  .map((s) => allProducts.find((b) => b.slug === s))
+import Base from '../layouts/Base.astro'
+import Tile from '../components/Tile.astro'
+import Swatch from '../components/Swatch.astro'
+import { COLLECTIONS, DELIVERY, findItem, inCollection, items } from '../data/shop.js'
+
+const featured = ['indigo-block-print-scarf', 'pashmina-blend-shawl', 'ikat-silk-dupatta', 'khadi-cotton-stole', 'kantha-reversible-wrap', 'chanderi-dupatta', 'block-print-cushion-cover', 'bandhani-georgette-scarf'].map(findItem)
+const board = ['ikat-silk-dupatta', 'indigo-block-print-scarf', 'kantha-reversible-wrap', 'bandhani-georgette-scarf', 'khadi-cotton-stole', 'handwoven-wool-shawl'].map(findItem)
 ---
-<Layout>
+<Base>
   <section class="hero">
-    <div class="wrap hero-in">
+    <div class="hero-in">
       <div>
-        <p class="eyebrow">Independent · Jaipur · Since 2019</p>
-        <h1>Handloom textiles, <em>woven</em> for your wardrobe.</h1>
-        <p class="lead">Block prints from Bagru, ikat from Pochampally, pashmina from Srinagar. Bought straight from weavers, packed with care and shipped in 2–5 days.</p>
-        <a href="/category/scarves" class="btn">Browse scarves</a>
-        <a href="/category/shawls" class="btn ghost">Shawls</a>
+        <p class="kicker">Jaipur · Handloom · Since 2019</p>
+        <h1>Cloth with a <em>maker's</em> name on it.</h1>
+        <p class="lead">Block prints from Bagru, ikat from Pochampally, pashmina from Srinagar. Bought straight from the weavers and sent to you in 2–5 days.</p>
+        <a class="btn" href="/collections/scarves">Shop scarves</a>
+        <a class="btn alt" href="/collections/shawls">See shawls</a>
       </div>
-      <div class="hero-stack">
-        {['ikat-silk-dupatta', 'pashmina-blend-shawl', 'indigo-block-print-scarf'].map((s) => {
-          const b = allProducts.find((x) => x.slug === s)
-          return <div class="tilt" style={`--c:${b.color}`}><span>{b.title}</span><small>{b.maker}</small></div>
-        })}
+      <div class="board" aria-hidden="true">
+        {board.map((i) => <Swatch item={i} />)}
       </div>
     </div>
   </section>
 
-  <section class="wrap">
-    <h2 class="sec">Shop by shelf</h2>
-    <div class="shelves">
-      {CATEGORIES.map((c) => (
-        <a href={`/category/${c.slug}`} class="shelf">
-          <strong>{c.name}</strong>
-          <span>{c.blurb}</span>
-          <small>{inCategory(c.slug).length} pieces</small>
-        </a>
-      ))}
+  <section class="wrap band">
+    <h2>Shop by collection</h2>
+    <div class="collections">
+      {COLLECTIONS.map((c) => {
+        const first = inCollection(c.slug)[0]
+        return (
+          <a class="collection" href={`/collections/${c.slug}`}>
+            <Swatch item={first} />
+            <strong>{c.name}</strong>
+            <span>{c.blurb}</span>
+            <small>{inCollection(c.slug).length} pieces</small>
+          </a>
+        )
+      })}
     </div>
   </section>
 
-  <section class="wrap">
-    <h2 class="sec">Bestsellers this week</h2>
-    <div class="grid">{bestsellers.map((b) => <ProductCard item={b} />)}</div>
+  <section class="wrap band">
+    <h2>Most loved this month</h2>
+    <div class="shelf">{featured.map((i) => <Tile item={i} />)}</div>
   </section>
 
-  <section class="wrap promise">
-    <div><strong>Free delivery</strong><span>On orders above ₹499</span></div>
-    <div><strong>Cash on delivery</strong><span>Pay when your order arrives</span></div>
-    <div><strong>7-day returns</strong><span>Damaged in transit? We replace it.</span></div>
+  <section class="wrap strip">
+    <div><b>Free delivery</b><span>On orders above ₹{DELIVERY.freeFrom}</span></div>
+    <div><b>Pay on delivery</b><span>Cash or UPI when it arrives</span></div>
+    <div><b>{items.length} pieces, {new Set(items.map((i) => i.region)).size} weaving towns</b><span>Each page names where it was made</span></div>
   </section>
-</Layout>
+</Base>
 
 <script>
-  import { paintPrices, wireAddButtons } from '../scripts/store.js'
-  paintPrices()
-  wireAddButtons()
+  import { fillCosts, bindAddButtons } from '../scripts/bag.js'
+  fillCosts()
+  bindAddButtons()
 </script>

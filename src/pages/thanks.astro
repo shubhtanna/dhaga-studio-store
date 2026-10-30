@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro'
+---
+<Base title="Order placed">
+  <section class="wrap thanks">
+    <p class="kicker">Shukriya</p>
+    <h1>Your order is in</h1>
+    <p id="line" class="dim">We'll send a confirmation shortly.</p>
+    <p class="dim">Orders are packed within a day and arrive in 2–5 days.</p>
+    <a class="btn" href="/">Keep browsing</a>
+  </section>
+</Base>
+
+<script>
+  import { rupees } from '../scripts/bag.js'
+  const last = JSON.parse(sessionStorage.getItem('dhaga:last') || 'null')
+  if (last) {
+    document.getElementById('line').textContent =
+      `Order ${last.ref} · ${last.pieces} item${last.pieces > 1 ? 's' : ''} · ${rupees(last.grand)} · ${last.how === 'upi' ? 'UPI on delivery' : 'Cash on delivery'}`
+  }
+</script>

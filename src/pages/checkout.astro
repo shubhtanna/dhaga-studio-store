@@ -1,71 +1,74 @@
 ---
-import Layout from '../layouts/Layout.astro'
-import { allProducts, FREE_SHIPPING_FROM, SHIPPING_FEE } from '../data/store.js'
-const titles = Object.fromEntries(allProducts.map((b) => [b.sku, b.title]))
+import Base from '../layouts/Base.astro'
+import { items, DELIVERY } from '../data/shop.js'
+const names = Object.fromEntries(items.map((i) => [i.sku, i.name]))
 ---
-<Layout title="Checkout">
+<Base title="Checkout">
   <section class="wrap">
-    <h1 class="page">Checkout</h1>
-    <div class="co" id="co" data-titles={JSON.stringify(titles)} data-free={FREE_SHIPPING_FROM} data-fee={SHIPPING_FEE}>
-      <form id="form" class="co-form" novalidate>
-        <h3>Delivery details</h3>
-        <label>Full name<input name="name" autocomplete="name" required /></label>
-        <label>Mobile<input name="phone" type="tel" autocomplete="tel" inputmode="numeric" required /></label>
-        <label>Email<input name="email" type="email" autocomplete="email" required /></label>
-        <label>Address<input name="address" autocomplete="street-address" required /></label>
+    <h1 class="title">Checkout</h1>
+    <div class="pay" id="pay" data-names={JSON.stringify(names)} data-free={DELIVERY.freeFrom} data-fee={DELIVERY.fee}>
+      <form class="form" id="details" novalidate>
+        <h3>Where should we send it?</h3>
+        <label>Full name<input type="text" name="name" autocomplete="name" /></label>
+        <label>Mobile number<input type="tel" name="phone" autocomplete="tel" inputmode="numeric" /></label>
+        <label>Email<input type="email" name="email" autocomplete="email" /></label>
+        <label>Address<input type="text" name="address" autocomplete="street-address" /></label>
         <div class="two">
-          <label>City<input name="city" autocomplete="address-level2" required /></label>
-          <label>PIN code<input name="pincode" inputmode="numeric" maxlength="6" required /></label>
+          <label>City<input type="text" name="city" autocomplete="address-level2" /></label>
+          <label>PIN code<input type="text" name="pin" inputmode="numeric" maxlength="6" /></label>
         </div>
-        <h3>Payment</h3>
-        <label class="radio"><input type="radio" name="payment" value="cod" checked /> Cash on delivery</label>
-        <label class="radio"><input type="radio" name="payment" value="upi" /> UPI on delivery</label>
-        <p class="err" id="err" hidden></p>
+        <h3>How will you pay?</h3>
+        <label class="choice"><input type="radio" name="how" value="cash" checked /> Cash on delivery</label>
+        <label class="choice"><input type="radio" name="how" value="upi" /> UPI on delivery</label>
+        <p class="problem" id="problem" hidden></p>
         <button class="btn wide" type="submit">Place order</button>
-        <p class="muted small">Demo store: no payment is taken and nothing is shipped.</p>
+        <p class="dim small">Demo store: nothing is charged or shipped.</p>
       </form>
-      <aside class="sum" id="sum"><p class="muted">Loading…</p></aside>
+      <aside class="total-box" id="summary"><p class="dim">Loading…</p></aside>
     </div>
   </section>
-</Layout>
+</Base>
 
 <script>
-  import { readCart, writeCart, loadPrices, inr } from '../scripts/store.js'
-  const co = document.getElementById('co')
-  const titles = JSON.parse(co.dataset.titles)
-  const FREE = Number(co.dataset.free), FEE = Number(co.dataset.fee)
-  const lines = readCart().filter((l) => titles[l.sku])
-  if (!lines.length) location.replace('/cart')
+  import { getBag, saveBag, loadCatalog, rupees } from '../scripts/bag.js'
+  const pay = document.getElementById('pay')
+  const names = JSON.parse(pay.dataset.names)
+  const FREE = Number(pay.dataset.free)
+  const FEE = Number(pay.dataset.fee)
+  const bag = getBag()
+  const skus = Object.keys(bag).filter((s) => names[s] && bag[s] > 0)
+  if (!skus.length) location.replace('/bag')
+  let grand = 0
 
-  loadPrices().then((prices) => {
-    const subtotal = lines.reduce((s, l) => s + prices[l.sku].price * l.qty, 0)
-    const ship = subtotal >= FREE ? 0 : FEE
-    document.getElementById('sum').innerHTML =
+  loadCatalog().then((live) => {
+    const subtotal = skus.reduce((s, k) => s + live[k].price * bag[k], 0)
+    const delivery = subtotal >= FREE ? 0 : FEE
+    grand = subtotal + delivery
+    document.getElementById('summary').innerHTML =
       '<h3>Your order</h3>' +
-      lines.map((l) => `<p><span>${titles[l.sku]} × ${l.qty}</span><span>${inr(prices[l.sku].price * l.qty)}</span></p>`).join('') +
-      `<p><span>Delivery</span><span>${ship ? inr(ship) : 'Free'}</span></p><p class="total"><span>Total</span><span>${inr(subtotal + ship)}</span></p>`
-    co.dataset.total = subtotal + ship
+      skus.map((k) => `<p><span>${names[k]} × ${bag[k]}</span><span>${rupees(live[k].price * bag[k])}</span></p>`).join('') +
+      `<p><span>Delivery</span><span>${delivery ? rupees(delivery) : 'Free'}</span></p><p class="grand"><span>Total</span><span>${rupees(grand)}</span></p>`
   })
 
-  document.getElementById('form').addEventListener('submit', (e) => {
+  document.getElementById('details').addEventListener('submit', (e) => {
     e.preventDefault()
     const f = Object.fromEntries(new FormData(e.target))
-    const problems = []
-    if (f.name.trim().length < 2) problems.push('your name')
-    if (!/^[6-9]\d{9}$/.test(f.phone.replace(/\D/g, '').slice(-10))) problems.push('a 10-digit mobile number')
-    if (!/^\S+@\S+\.\S+$/.test(f.email)) problems.push('a valid email')
-    if (f.address.trim().length < 6) problems.push('your address')
-    if (!f.city.trim()) problems.push('your city')
-    if (!/^\d{6}$/.test(f.pincode)) problems.push('a 6-digit PIN code')
-    const err = document.getElementById('err')
-    if (problems.length) {
-      err.textContent = 'Please enter ' + problems.join(', ') + '.'
-      err.hidden = false
+    const missing = []
+    if (f.name.trim().length < 2) missing.push('your name')
+    if (!/^[6-9]\d{9}$/.test(f.phone.replace(/\D/g, '').slice(-10))) missing.push('a 10-digit mobile number')
+    if (!/^\S+@\S+\.\S+$/.test(f.email)) missing.push('a valid email')
+    if (f.address.trim().length < 6) missing.push('your address')
+    if (!f.city.trim()) missing.push('your city')
+    if (!/^\d{6}$/.test(f.pin)) missing.push('a 6-digit PIN code')
+    const box = document.getElementById('problem')
+    if (missing.length) {
+      box.textContent = 'Please add ' + missing.join(', ') + '.'
+      box.hidden = false
       return
     }
-    const id = 'DS' + Date.now().toString().slice(-7)
-    sessionStorage.setItem('ds_last_order', JSON.stringify({ id, total: co.dataset.total, items: lines.length, payment: f.payment }))
-    writeCart([])
-    location.href = '/order?id=' + id
+    const ref = 'DHG' + Date.now().toString().slice(-7)
+    sessionStorage.setItem('dhaga:last', JSON.stringify({ ref, grand, pieces: skus.length, how: f.how }))
+    saveBag({})
+    location.href = '/thanks?ref=' + ref
   })
 </script>

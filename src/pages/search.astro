@@ -1,37 +1,41 @@
 ---
-import Layout from '../layouts/Layout.astro'
-import { allProducts } from '../data/store.js'
-const index = allProducts.map((b) => ({ sku: b.sku, slug: b.slug, title: b.title, maker: b.maker, category: b.category, color: b.color }))
+import Base from '../layouts/Base.astro'
+import { items } from '../data/shop.js'
+const lookup = items.map((i) => ({ sku: i.sku, slug: i.slug, name: i.name, region: i.region, fabric: i.fabric, collection: i.collection, tone: i.tone }))
 ---
-<Layout title="Search">
+<Base title="Search">
   <section class="wrap">
-    <h1 class="page">Search</h1>
-    <form id="sf" class="search"><input name="q" placeholder="Name or fabric" autocomplete="off" /><button class="btn" type="submit">Search</button></form>
-    <p id="count" class="muted"></p>
-    <div id="results" class="grid" data-index={JSON.stringify(index)}></div>
+    <h1 class="title">Search</h1>
+    <form class="search-form" id="sf"><input name="q" placeholder="Try ikat, khadi, kantha…" autocomplete="off" /><button class="btn" type="submit">Search</button></form>
+    <p class="dim" id="found"></p>
+    <div class="shelf" id="hits" data-lookup={JSON.stringify(lookup)}></div>
   </section>
-</Layout>
+</Base>
 
 <script>
-  import { paintPrices } from '../scripts/store.js'
-  const box = document.getElementById('results')
-  const index = JSON.parse(box.dataset.index)
+  import { fillCosts, bindAddButtons } from '../scripts/bag.js'
+  const hits = document.getElementById('hits')
+  const lookup = JSON.parse(hits.dataset.lookup)
+  const weaves = { scarves: 'stripes', shawls: 'checks', dupattas: 'diamonds', stoles: 'dots', home: 'lines' }
   const input = document.querySelector('#sf input')
-  function run(q) {
+
+  function show(q) {
     const t = q.trim().toLowerCase()
-    const hits = t ? index.filter((b) => `${b.title} ${b.maker} ${b.category}`.toLowerCase().includes(t)) : []
-    document.getElementById('count').textContent = t ? `${hits.length} result${hits.length === 1 ? '' : 's'} for “${q}”` : ''
-    box.innerHTML = hits.map((b) => `<article class="card"><a href="/product/${b.slug}" class="card-link">
-      <div class="cover" style="--c:${b.color}"><span class="c-title">${b.title}</span><span class="c-rule"></span><span class="c-author">${b.maker}</span></div>
-      <h3>${b.title}</h3><p class="by">${b.maker}</p></a><p class="price loading" data-price-sku="${b.sku}">&nbsp;</p></article>`).join('')
-    paintPrices()
+    const found = t ? lookup.filter((i) => `${i.name} ${i.region} ${i.fabric} ${i.collection}`.toLowerCase().includes(t)) : []
+    document.getElementById('found').textContent = t ? `${found.length} result${found.length === 1 ? '' : 's'} for “${q}”` : ''
+    hits.innerHTML = found.map((i) => `<article class="tile" data-sku="${i.sku}">
+      <a class="tile-link" href="/p/${i.slug}"><div class="swatch" data-weave="${weaves[i.collection]}" style="--tone:${i.tone}"></div><h3>${i.name}</h3><p class="where">${i.region}</p></a>
+      <div class="tile-foot"><span class="cost" data-cost="${i.sku}">&nbsp;</span><button type="button" class="pill" data-add="${i.sku}">Add</button></div></article>`).join('')
+    fillCosts()
+    bindAddButtons()
   }
+
   const q = new URLSearchParams(location.search).get('q') || ''
   input.value = q
-  run(q)
+  show(q)
   document.getElementById('sf').addEventListener('submit', (e) => {
     e.preventDefault()
     history.replaceState(null, '', '/search?q=' + encodeURIComponent(input.value))
-    run(input.value)
+    show(input.value)
   })
 </script>

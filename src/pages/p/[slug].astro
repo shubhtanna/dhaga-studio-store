@@ -1,0 +1,48 @@
+---
+import Base from '../../layouts/Base.astro'
+import Swatch from '../../components/Swatch.astro'
+import Tile from '../../components/Tile.astro'
+import { items, collectionName } from '../../data/shop.js'
+
+export function getStaticPaths() {
+  return items.map((item) => ({ params: { slug: item.slug }, props: { item } }))
+}
+const { item } = Astro.props
+const alike = items.filter((i) => i.collection === item.collection && i.slug !== item.slug).slice(0, 4)
+---
+<Base title={`${item.name}, ${item.region}`} description={item.story}>
+  <section class="wrap">
+    <p class="crumbs"><a href="/">Home</a> / <a href={`/collections/${item.collection}`}>{collectionName(item.collection)}</a> / {item.name}</p>
+    <div class="item">
+      <Swatch item={item} size="lg" />
+      <div>
+        <h1>{item.name}</h1>
+        <p class="dim">Woven in {item.region}</p>
+        <p class="rating">★ {item.rating} <span>· {item.fabric}</span></p>
+        <span class="cost lg" data-cost={item.sku}>&nbsp;</span>
+        <p class="stock" data-stock={item.sku}>In stock, ships in 1–2 days</p>
+        <div class="buy">
+          <input id="qty" type="number" min="1" max="5" value="1" aria-label="Quantity" />
+          <button type="button" class="btn" data-add={item.sku}>Add to bag</button>
+        </div>
+        <p>{item.story}</p>
+        <dl class="specs">
+          <div><dt>Fabric</dt><dd>{item.fabric}</dd></div>
+          <div><dt>Size</dt><dd>{item.size}</dd></div>
+          <div><dt>Made in</dt><dd>{item.region}</dd></div>
+          <div><dt>Item code</dt><dd>{item.sku}</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+  <section class="wrap band">
+    <h2>More in {collectionName(item.collection)}</h2>
+    <div class="shelf">{alike.map((i) => <Tile item={i} />)}</div>
+  </section>
+</Base>
+
+<script>
+  import { fillCosts, bindAddButtons } from '../../scripts/bag.js'
+  fillCosts()
+  bindAddButtons()
+</script>

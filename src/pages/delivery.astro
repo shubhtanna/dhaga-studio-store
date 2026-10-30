@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro'
+import { DELIVERY } from '../data/shop.js'
+---
+<Base title="Delivery & returns">
+  <section class="wrap prose">
+    <h1 class="title">Delivery &amp; returns</h1>
+    <h3>Delivery</h3>
+    <p>Free above ₹{DELIVERY.freeFrom}, otherwise ₹{DELIVERY.fee}. Metro cities take 2–3 days and the rest of India 3–5 days.</p>
+    <h3>Payment</h3>
+    <p>Cash or UPI when your order arrives.</p>
+    <h3>Returns</h3>
+    <p>Wrong or damaged piece? Tell us within 7 days of delivery and we'll replace it free.</p>
+  </section>
+</Base>

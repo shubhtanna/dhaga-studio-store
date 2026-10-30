@@ -1,0 +1,59 @@
+---
+import { COLLECTIONS, DELIVERY } from '../data/shop.js'
+import '../styles/site.css'
+const { title, description = 'Handloom scarves, shawls, dupattas and home textiles from Indian weavers.' } = Astro.props
+const pageTitle = title ? `${title} | Dhaga Studio` : 'Dhaga Studio | Handloom textiles from Indian weavers'
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <p class="notice">Handwoven in India · Free delivery above ₹{DELIVERY.freeFrom} · Pay on delivery</p>
+    <header class="top">
+      <div class="top-row">
+        <a class="brand" href="/">Dhaga<span>Studio</span></a>
+        <form class="finder" action="/search" method="get" role="search">
+          <input type="search" name="q" placeholder="Search scarves, shawls, weaves…" aria-label="Search" />
+        </form>
+        <a class="bag-link" href="/bag">Bag <b data-bag-count>0</b></a>
+      </div>
+      <nav class="rail" aria-label="Collections">
+        {COLLECTIONS.map((c) => <a href={`/collections/${c.slug}`}>{c.name}</a>)}
+        <a href="/our-story">Our story</a>
+      </nav>
+    </header>
+    <main><slot /></main>
+    <footer class="foot">
+      <div class="foot-grid">
+        <div>
+          <p class="brand sm">Dhaga<span>Studio</span></p>
+          <p class="dim">Handloom textiles from weaving clusters across India, sent from Jaipur since 2019.</p>
+        </div>
+        <div>
+          <h4>Collections</h4>
+          {COLLECTIONS.map((c) => <a href={`/collections/${c.slug}`}>{c.name}</a>)}
+        </div>
+        <div>
+          <h4>Studio</h4>
+          <a href="/our-story">Our story</a>
+          <a href="/delivery">Delivery &amp; returns</a>
+          <a href="/bag">Your bag</a>
+        </div>
+      </div>
+      <p class="fine">A demo store for testing AI shopping agents. No real orders, payments or deliveries.</p>
+    </footer>
+    <script>
+      import { showCount } from '../scripts/bag.js'
+      showCount()
+    </script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+---
+// A piece of "cloth" drawn in CSS from the item's colour and its collection's weave.
+import { PATTERNS } from '../data/shop.js'
+const { item, size = 'md' } = Astro.props
+---
+<div class={`swatch ${size}`} data-weave={PATTERNS[item.collection]} style={`--tone:${item.tone}`} role="img" aria-label={`${item.name}, ${item.fabric}`}></div>

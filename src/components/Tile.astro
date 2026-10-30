@@ -1,0 +1,15 @@
+---
+import Swatch from './Swatch.astro'
+const { item } = Astro.props
+---
+<article class="tile" data-sku={item.sku}>
+  <a class="tile-link" href={`/p/${item.slug}`}>
+    <Swatch item={item} />
+    <h3>{item.name}</h3>
+    <p class="where">{item.region}</p>
+  </a>
+  <div class="tile-foot">
+    <span class="cost" data-cost={item.sku}>&nbsp;</span>
+    <button type="button" class="pill" data-add={item.sku}>Add</button>
+  </div>
+</article>
