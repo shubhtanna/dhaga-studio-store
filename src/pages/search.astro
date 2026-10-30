@@ -1,11 +1,12 @@
 ---
 import Base from '../layouts/Base.astro'
-import { items } from '../data/shop.js'
-const lookup = items.map((i) => ({ sku: i.sku, slug: i.slug, name: i.name, region: i.region, fabric: i.fabric, collection: i.collection, tone: i.tone }))
+import { items, collectionName } from '../data/shop.js'
+const lookup = items.map((i) => ({ sku: i.sku, slug: i.slug, name: i.name, region: i.region, fabric: i.fabric, collection: i.collection, shelf: collectionName(i.collection), tone: i.tone }))
 ---
 <Base title="Search">
   <section class="wrap">
-    <h1 class="title">Search</h1>
+    <p class="crumbs"><a href="/">Home</a><span>/</span>Search</p>
+    <h1 class="title">Search the shop</h1>
     <form class="search-form" id="sf"><input name="q" placeholder="Try ikat, khadi, kantha…" autocomplete="off" /><button class="btn" type="submit">Search</button></form>
     <p class="dim" id="found"></p>
     <div class="shelf" id="hits" data-lookup={JSON.stringify(lookup)}></div>
@@ -14,9 +15,9 @@ const lookup = items.map((i) => ({ sku: i.sku, slug: i.slug, name: i.name, regio
 
 <script>
   import { fillCosts, bindAddButtons } from '../scripts/bag.js'
+  import { clothSvg } from '../scripts/cloth.js'
   const hits = document.getElementById('hits')
   const lookup = JSON.parse(hits.dataset.lookup)
-  const weaves = { scarves: 'stripes', shawls: 'checks', dupattas: 'diamonds', stoles: 'dots', home: 'lines' }
   const input = document.querySelector('#sf input')
 
   function show(q) {
@@ -24,8 +25,8 @@ const lookup = items.map((i) => ({ sku: i.sku, slug: i.slug, name: i.name, regio
     const found = t ? lookup.filter((i) => `${i.name} ${i.region} ${i.fabric} ${i.collection}`.toLowerCase().includes(t)) : []
     document.getElementById('found').textContent = t ? `${found.length} result${found.length === 1 ? '' : 's'} for “${q}”` : ''
     hits.innerHTML = found.map((i) => `<article class="tile" data-sku="${i.sku}">
-      <a class="tile-link" href="/p/${i.slug}"><div class="swatch" data-weave="${weaves[i.collection]}" style="--tone:${i.tone}"></div><h3>${i.name}</h3><p class="where">${i.region}</p></a>
-      <div class="tile-foot"><span class="cost" data-cost="${i.sku}">&nbsp;</span><button type="button" class="pill" data-add="${i.sku}">Add</button></div></article>`).join('')
+      <a class="tile-link" href="/p/${i.slug}"><div class="pic">${clothSvg(i)}</div><p class="tag">${i.shelf}</p><h3>${i.name}</h3><p class="where">${i.region}</p></a>
+      <div class="tile-foot"><span class="cost" data-cost="${i.sku}">&nbsp;</span><button type="button" class="add" data-add="${i.sku}">Add to bag</button></div></article>`).join('')
     fillCosts()
     bindAddButtons()
   }

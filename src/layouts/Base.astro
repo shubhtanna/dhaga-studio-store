@@ -3,6 +3,7 @@ import { COLLECTIONS, DELIVERY } from '../data/shop.js'
 import '../styles/site.css'
 const { title, description = 'Handloom scarves, shawls, dupattas and home textiles from Indian weavers.' } = Astro.props
 const pageTitle = title ? `${title} | Dhaga Studio` : 'Dhaga Studio | Handloom textiles from Indian weavers'
+const here = Astro.url.pathname
 ---
 <!doctype html>
 <html lang="en">
@@ -14,38 +15,44 @@ const pageTitle = title ? `${title} | Dhaga Studio` : 'Dhaga Studio | Handloom t
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <p class="notice">Handwoven in India · Free delivery above ₹{DELIVERY.freeFrom} · Pay on delivery</p>
+    <p class="notice">Free delivery above ₹{DELIVERY.freeFrom} <span>·</span> Pay on delivery<i class="nm"> <span>·</span> Every piece handwoven in India</i></p>
     <header class="top">
       <div class="top-row">
-        <a class="brand" href="/">Dhaga<span>Studio</span></a>
-        <form class="finder" action="/search" method="get" role="search">
-          <input type="search" name="q" placeholder="Search scarves, shawls, weaves…" aria-label="Search" />
-        </form>
-        <a class="bag-link" href="/bag">Bag <b data-bag-count>0</b></a>
+        <a class="brand" href="/">Dhaga <em>Studio</em></a>
+        <nav class="rail" aria-label="Collections">
+          {COLLECTIONS.map((c) => <a href={`/collections/${c.slug}`} class={here.startsWith(`/collections/${c.slug}`) ? 'on' : ''}>{c.name}</a>)}
+        </nav>
+        <div class="actions">
+          <form class="finder" action="/search" method="get" role="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></svg>
+            <input type="search" name="q" placeholder="Search" aria-label="Search the shop" />
+          </form>
+          <a class="bag-link" href="/bag" aria-label="Your bag">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></svg>
+            <b data-bag-count>0</b>
+          </a>
+        </div>
       </div>
-      <nav class="rail" aria-label="Collections">
-        {COLLECTIONS.map((c) => <a href={`/collections/${c.slug}`}>{c.name}</a>)}
-        <a href="/our-story">Our story</a>
-      </nav>
     </header>
     <main><slot /></main>
     <footer class="foot">
       <div class="foot-grid">
         <div>
-          <p class="brand sm">Dhaga<span>Studio</span></p>
-          <p class="dim">Handloom textiles from weaving clusters across India, sent from Jaipur since 2019.</p>
+          <p class="brand">Dhaga <em>Studio</em></p>
+          <p class="foot-line">Handloom textiles from weaving towns across India, packed by hand in Jaipur since 2019.</p>
         </div>
         <div>
-          <h4>Collections</h4>
+          <h4>Shop</h4>
           {COLLECTIONS.map((c) => <a href={`/collections/${c.slug}`}>{c.name}</a>)}
         </div>
         <div>
           <h4>Studio</h4>
           <a href="/our-story">Our story</a>
           <a href="/delivery">Delivery &amp; returns</a>
+          <a href="/search">Search</a>
           <a href="/bag">Your bag</a>
         </div>
       </div>

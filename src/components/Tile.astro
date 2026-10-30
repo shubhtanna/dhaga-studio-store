@@ -1,15 +1,17 @@
 ---
 import Swatch from './Swatch.astro'
+import { collectionName } from '../data/shop.js'
 const { item } = Astro.props
 ---
 <article class="tile" data-sku={item.sku}>
   <a class="tile-link" href={`/p/${item.slug}`}>
     <Swatch item={item} />
+    <p class="tag">{collectionName(item.collection)}</p>
     <h3>{item.name}</h3>
     <p class="where">{item.region}</p>
   </a>
   <div class="tile-foot">
     <span class="cost" data-cost={item.sku}>&nbsp;</span>
-    <button type="button" class="pill" data-add={item.sku}>Add</button>
+    <button type="button" class="add" data-add={item.sku}>Add to bag</button>
   </div>
 </article>

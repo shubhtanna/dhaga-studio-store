@@ -5,50 +5,77 @@ import Swatch from '../components/Swatch.astro'
 import { COLLECTIONS, DELIVERY, findItem, inCollection, items } from '../data/shop.js'
 
 const featured = ['indigo-block-print-scarf', 'pashmina-blend-shawl', 'ikat-silk-dupatta', 'khadi-cotton-stole', 'kantha-reversible-wrap', 'chanderi-dupatta', 'block-print-cushion-cover', 'bandhani-georgette-scarf'].map(findItem)
-const board = ['ikat-silk-dupatta', 'indigo-block-print-scarf', 'kantha-reversible-wrap', 'bandhani-georgette-scarf', 'khadi-cotton-stole', 'handwoven-wool-shawl'].map(findItem)
+const cover = findItem('ikat-silk-dupatta')
+const second = findItem('indigo-block-print-scarf')
+const story = findItem('kantha-throw-blanket')
+const picks = { scarves: 'ajrakh-cotton-scarf', shawls: 'handwoven-wool-shawl', dupattas: 'phulkari-dupatta', stoles: 'kalamkari-cotton-stole', home: 'cotton-dhurrie-rug' }
+const towns = [...new Set(items.map((i) => i.region.split(',')[0]))]
 ---
 <Base>
   <section class="hero">
     <div class="hero-in">
-      <div>
-        <p class="kicker">Jaipur · Handloom · Since 2019</p>
-        <h1>Cloth with a <em>maker's</em> name on it.</h1>
-        <p class="lead">Block prints from Bagru, ikat from Pochampally, pashmina from Srinagar. Bought straight from the weavers and sent to you in 2–5 days.</p>
-        <a class="btn" href="/collections/scarves">Shop scarves</a>
-        <a class="btn alt" href="/collections/shawls">See shawls</a>
+      <div class="hero-copy">
+        <p class="kicker">Handloom studio · Jaipur</p>
+        <h1>Woven slowly.<br /><em>Worn for years.</em></h1>
+        <p class="lead">Block prints from Bagru, ikat from Pochampally, pashmina from Srinagar. We buy straight from the weavers and send each piece to you in 2–5 days.</p>
+        <div class="cta">
+          <a class="btn" href="/collections/scarves">Shop scarves</a>
+          <a class="text-link" href="/our-story">Meet the weavers →</a>
+        </div>
+        <dl class="facts">
+          <div><dt>{items.length}</dt><dd>pieces in stock</dd></div>
+          <div><dt>{towns.length}</dt><dd>weaving towns</dd></div>
+          <div><dt>2019</dt><dd>since</dd></div>
+        </dl>
       </div>
-      <div class="board" aria-hidden="true">
-        {board.map((i) => <Swatch item={i} />)}
+      <div class="hero-art">
+        <a class="arch" href={`/p/${cover.slug}`}><Swatch item={cover} size="lg" /></a>
+        <a class="float" href={`/p/${second.slug}`}><Swatch item={second} decorative /><span>{second.name}<small>{second.region}</small></span></a>
+        <p class="caption">{cover.name} · {cover.region}</p>
       </div>
     </div>
   </section>
 
+  <div class="towns" aria-label="Where our pieces are woven"><div><em>Woven in</em>{towns.slice(0, 8).map((t) => <span>{t}</span>)}<em>and {towns.length - 8} more towns</em></div></div>
+
   <section class="wrap band">
-    <h2>Shop by collection</h2>
+    <div class="band-head">
+      <h2>Shop by collection</h2>
+      <p class="dim">Five shelves, each kept short on purpose.</p>
+    </div>
     <div class="collections">
-      {COLLECTIONS.map((c) => {
-        const first = inCollection(c.slug)[0]
-        return (
-          <a class="collection" href={`/collections/${c.slug}`}>
-            <Swatch item={first} />
-            <strong>{c.name}</strong>
-            <span>{c.blurb}</span>
-            <small>{inCollection(c.slug).length} pieces</small>
-          </a>
-        )
-      })}
+      {COLLECTIONS.map((c) => (
+        <a class="collection" href={`/collections/${c.slug}`}>
+          <Swatch item={findItem(picks[c.slug])} decorative />
+          <strong>{c.name}</strong>
+          <span>{inCollection(c.slug).length} pieces</span>
+        </a>
+      ))}
     </div>
   </section>
 
   <section class="wrap band">
-    <h2>Most loved this month</h2>
+    <div class="band-head">
+      <h2>Most loved this month</h2>
+      <a class="text-link" href="/search?q=cotton">Browse all cotton →</a>
+    </div>
     <div class="shelf">{featured.map((i) => <Tile item={i} />)}</div>
   </section>
 
-  <section class="wrap strip">
-    <div><b>Free delivery</b><span>On orders above ₹{DELIVERY.freeFrom}</span></div>
-    <div><b>Pay on delivery</b><span>Cash or UPI when it arrives</span></div>
-    <div><b>{items.length} pieces, {new Set(items.map((i) => i.region)).size} weaving towns</b><span>Each page names where it was made</span></div>
+  <section class="wrap story">
+    <a class="story-pic" href={`/p/${story.slug}`}><Swatch item={story} size="lg" /></a>
+    <div class="story-copy">
+      <p class="kicker">From the looms</p>
+      <h2>Every piece carries the name of the town that made it.</h2>
+      <p>A kantha throw from Birbhum takes three women about a month of evenings. An ikat dupatta from Pochampally is dyed thread by thread before it ever reaches the loom. We keep our list short so we can buy fairly and tell you exactly where each piece comes from.</p>
+      <a class="btn ghost" href="/our-story">Read our story</a>
+    </div>
+  </section>
+
+  <section class="wrap promise">
+    <div><b>Free delivery</b><span>On orders above ₹{DELIVERY.freeFrom}, across India</span></div>
+    <div><b>Pay on delivery</b><span>Cash or UPI when your parcel arrives</span></div>
+    <div><b>7-day replacement</b><span>Damaged in transit? We send a new one</span></div>
   </section>
 </Base>
 

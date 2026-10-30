@@ -11,9 +11,11 @@ const list = inCollection(collection.slug)
 ---
 <Base title={collection.name} description={`${collection.name} at Dhaga Studio. ${collection.blurb}`}>
   <section class="wrap">
-    <p class="crumbs"><a href="/">Home</a> / {collection.name}</p>
-    <h1 class="title">{collection.name}</h1>
-    <p class="dim">{collection.blurb} {list.length} pieces.</p>
+    <div class="coll-head">
+      <p class="crumbs"><a href="/">Home</a><span>/</span>{collection.name}</p>
+      <h1 class="title">{collection.name}</h1>
+      <p class="dim">{collection.blurb} {list.length} pieces.</p>
+    </div>
     <div class="tools">
       <label>Sort
         <select id="order">

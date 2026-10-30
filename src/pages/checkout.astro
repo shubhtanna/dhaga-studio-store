@@ -5,6 +5,7 @@ const names = Object.fromEntries(items.map((i) => [i.sku, i.name]))
 ---
 <Base title="Checkout">
   <section class="wrap">
+    <p class="crumbs"><a href="/bag">Bag</a><span>/</span>Checkout</p>
     <h1 class="title">Checkout</h1>
     <div class="pay" id="pay" data-names={JSON.stringify(names)} data-free={DELIVERY.freeFrom} data-fee={DELIVERY.fee}>
       <form class="form" id="details" novalidate>
