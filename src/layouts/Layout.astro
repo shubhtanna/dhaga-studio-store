@@ -1,0 +1,58 @@
+---
+import { CATEGORIES, FREE_SHIPPING_FROM } from '../data/store.js'
+import '../styles/global.css'
+const { title = 'Dhaga Studio', description = 'Handloom scarves, shawls, dupattas and home textiles from Indian weavers, delivered across India.' } = Astro.props
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title === 'Dhaga Studio' ? 'Dhaga Studio · Handloom textiles delivered across India' : `${title} · Dhaga Studio`}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="strip">Free delivery on orders above ₹{FREE_SHIPPING_FROM} · Cash on delivery across India</div>
+    <header class="site">
+      <div class="wrap bar">
+        <a href="/" class="logo">Dhaga <em>Studio</em></a>
+        <nav>
+          {CATEGORIES.map((c) => <a href={`/category/${c.slug}`}>{c.name}</a>)}
+        </nav>
+        <div class="tools">
+          <a href="/search" aria-label="Search">Search</a>
+          <a href="/cart" class="cart-link">Bag <span class="count" data-cart-count hidden>0</span></a>
+        </div>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site">
+      <div class="wrap cols">
+        <div>
+          <p class="logo small">Dhaga <em>Studio</em></p>
+          <p class="muted">An independent handloom studio from Jaipur, shipping since 2019.</p>
+        </div>
+        <div>
+          <h4>Shop</h4>
+          {CATEGORIES.map((c) => <a href={`/category/${c.slug}`}>{c.name}</a>)}
+        </div>
+        <div>
+          <h4>Help</h4>
+          <a href="/shipping">Shipping &amp; returns</a>
+          <a href="/about">About us</a>
+        </div>
+      </div>
+      <p class="wrap demo">Demo store built for testing AI shopping agents. No real orders, payments or deliveries.</p>
+    </footer>
+    <script>
+      import { updateCount } from '../scripts/store.js'
+      updateCount()
+    </script>
+  </body>
+</html>

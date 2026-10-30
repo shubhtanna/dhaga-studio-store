@@ -1,1 +1,0 @@
-{ "rewrites": [{ "source": "/((?!products.json|robots.txt|assets/).*)", "destination": "/index.html" }] }

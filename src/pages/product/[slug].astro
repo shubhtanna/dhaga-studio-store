@@ -1,0 +1,44 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import Cover from '../../components/Cover.astro'
+import ProductCard from '../../components/ProductCard.astro'
+import { allProducts, categoryName } from '../../data/store.js'
+
+export function getStaticPaths() {
+  return allProducts.map((b) => ({ params: { slug: b.slug }, props: { item: b } }))
+}
+const { item } = Astro.props
+const more = allProducts.filter((b) => b.category === item.category && b.slug !== item.slug).slice(0, 4)
+---
+<Layout title={`${item.title} from ${item.maker}`} description={item.blurb}>
+  <section class="wrap pdp">
+    <Cover item={item} size="lg" />
+    <div class="pdp-info">
+      <p class="crumbs"><a href="/">Home</a> / <a href={`/category/${item.category}`}>{categoryName(item.category)}</a></p>
+      <h1>{item.title}</h1>
+      <p class="by big">from {item.maker}</p>
+      <p class="rating">★ {item.rating} <span class="muted">· {item.fabric} · {item.size}</span></p>
+      <p class="price big loading" data-price-sku={item.sku}>&nbsp;</p>
+      <p class="stock" data-stock-sku={item.sku}>In stock · ships in 1–2 days</p>
+      <button type="button" class="btn" data-add={item.sku}>Add to bag</button>
+      <p class="blurb">{item.blurb}</p>
+      <dl class="facts">
+        <div><dt>Fabric</dt><dd>{item.fabric}</dd></div>
+        <div><dt>Size</dt><dd>{item.size}</dd></div>
+        <div><dt>Code</dt><dd>{item.sku}</dd></div>
+      </dl>
+    </div>
+  </section>
+  {more.length > 0 && (
+    <section class="wrap related">
+      <h2 class="sec">More from {categoryName(item.category)}</h2>
+      <div class="grid">{more.map((b) => <ProductCard item={b} />)}</div>
+    </section>
+  )}
+</Layout>
+
+<script>
+  import { paintPrices, wireAddButtons } from '../../scripts/store.js'
+  paintPrices()
+  wireAddButtons()
+</script>

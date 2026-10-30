@@ -1,8 +1,15 @@
 # Dhaga Studio
 
-A small handloom scarf store (Vite + React). Built as a test store for [AgentReady](https://github.com/Nisarg004/Agent_Ready): products load with JavaScript, the cart lives in the browser, and `robots.txt` blocks AI crawlers, so AI shopping agents can't buy here yet.
+Online storefront for Dhaga Studio, an independent handloom studio in Jaipur that ships across India.
+
+Built with [Astro](https://astro.build) as a static site. Product pages are generated at build time from
+`src/data/products.json`; live prices and stock come from `/api/prices.json` and are filled in by the
+browser, so a sale doesn't need a full rebuild. The bag and checkout run in the browser.
 
 ```bash
 npm install
-npm run dev
+npm run dev      # http://localhost:4321
+npm run build    # static site in dist/
 ```
+
+Demo store built for testing [AgentReady](https://github.com/Nisarg004/Agent_Ready). No real orders, payments or deliveries.

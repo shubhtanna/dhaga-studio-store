@@ -1,0 +1,56 @@
+---
+import Layout from '../layouts/Layout.astro'
+import ProductCard from '../components/ProductCard.astro'
+import { allProducts, CATEGORIES, inCategory } from '../data/store.js'
+const bestsellers = ['indigo-block-print-scarf', 'pashmina-blend-shawl', 'ikat-silk-dupatta', 'khadi-cotton-stole', 'kantha-reversible-wrap', 'chanderi-dupatta', 'block-print-cushion-cover', 'bandhani-georgette-scarf']
+  .map((s) => allProducts.find((b) => b.slug === s))
+---
+<Layout>
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div>
+        <p class="eyebrow">Independent · Jaipur · Since 2019</p>
+        <h1>Handloom textiles, <em>woven</em> for your wardrobe.</h1>
+        <p class="lead">Block prints from Bagru, ikat from Pochampally, pashmina from Srinagar. Bought straight from weavers, packed with care and shipped in 2–5 days.</p>
+        <a href="/category/scarves" class="btn">Browse scarves</a>
+        <a href="/category/shawls" class="btn ghost">Shawls</a>
+      </div>
+      <div class="hero-stack">
+        {['ikat-silk-dupatta', 'pashmina-blend-shawl', 'indigo-block-print-scarf'].map((s) => {
+          const b = allProducts.find((x) => x.slug === s)
+          return <div class="tilt" style={`--c:${b.color}`}><span>{b.title}</span><small>{b.maker}</small></div>
+        })}
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="sec">Shop by shelf</h2>
+    <div class="shelves">
+      {CATEGORIES.map((c) => (
+        <a href={`/category/${c.slug}`} class="shelf">
+          <strong>{c.name}</strong>
+          <span>{c.blurb}</span>
+          <small>{inCategory(c.slug).length} pieces</small>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="sec">Bestsellers this week</h2>
+    <div class="grid">{bestsellers.map((b) => <ProductCard item={b} />)}</div>
+  </section>
+
+  <section class="wrap promise">
+    <div><strong>Free delivery</strong><span>On orders above ₹499</span></div>
+    <div><strong>Cash on delivery</strong><span>Pay when your order arrives</span></div>
+    <div><strong>7-day returns</strong><span>Damaged in transit? We replace it.</span></div>
+  </section>
+</Layout>
+
+<script>
+  import { paintPrices, wireAddButtons } from '../scripts/store.js'
+  paintPrices()
+  wireAddButtons()
+</script>

@@ -1,0 +1,9 @@
+---
+// Fabric swatch: a coloured panel with the name and where it is woven.
+const { item, size = 'md' } = Astro.props
+---
+<div class={`cover ${size}`} style={`--c:${item.color}`} aria-hidden="true">
+  <span class="c-title">{item.title}</span>
+  <span class="c-rule"></span>
+  <span class="c-author">{item.maker}</span>
+</div>

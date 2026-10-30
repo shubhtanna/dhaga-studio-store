@@ -1,8 +1,0 @@
-[
-  { "id": "DS-S01", "name": "Indigo Block-Print Cotton Scarf", "price": 899, "image": "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=600", "desc": "Hand block-printed cotton scarf in indigo, 180 x 70 cm." },
-  { "id": "DS-S02", "name": "Handwoven Pashmina Blend Shawl", "price": 2499, "image": "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=600", "desc": "Soft pashmina-blend shawl woven on a handloom in Kashmir." },
-  { "id": "DS-S03", "name": "Ikat Silk Dupatta", "price": 1799, "image": "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600", "desc": "Pure silk dupatta with traditional Pochampally ikat weave." },
-  { "id": "DS-S04", "name": "Mustard Khadi Stole", "price": 649, "image": "https://images.unsplash.com/photo-1584030373081-f37b7bb4fa8e?w=600", "desc": "Light khadi cotton stole, naturally dyed in mustard." },
-  { "id": "DS-S05", "name": "Kantha Stitch Reversible Wrap", "price": 1499, "image": "https://images.unsplash.com/photo-1609803384069-19f3e5a70e75?w=600", "desc": "Reversible wrap with hand-sewn kantha stitching from Bengal." },
-  { "id": "DS-S06", "name": "Bandhani Georgette Scarf", "price": 749, "image": "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=600", "desc": "Tie-dye bandhani scarf in flowing georgette, from Gujarat." }
-]

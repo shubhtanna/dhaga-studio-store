@@ -1,0 +1,71 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { allProducts, FREE_SHIPPING_FROM, SHIPPING_FEE } from '../data/store.js'
+const titles = Object.fromEntries(allProducts.map((b) => [b.sku, b.title]))
+---
+<Layout title="Checkout">
+  <section class="wrap">
+    <h1 class="page">Checkout</h1>
+    <div class="co" id="co" data-titles={JSON.stringify(titles)} data-free={FREE_SHIPPING_FROM} data-fee={SHIPPING_FEE}>
+      <form id="form" class="co-form" novalidate>
+        <h3>Delivery details</h3>
+        <label>Full name<input name="name" autocomplete="name" required /></label>
+        <label>Mobile<input name="phone" type="tel" autocomplete="tel" inputmode="numeric" required /></label>
+        <label>Email<input name="email" type="email" autocomplete="email" required /></label>
+        <label>Address<input name="address" autocomplete="street-address" required /></label>
+        <div class="two">
+          <label>City<input name="city" autocomplete="address-level2" required /></label>
+          <label>PIN code<input name="pincode" inputmode="numeric" maxlength="6" required /></label>
+        </div>
+        <h3>Payment</h3>
+        <label class="radio"><input type="radio" name="payment" value="cod" checked /> Cash on delivery</label>
+        <label class="radio"><input type="radio" name="payment" value="upi" /> UPI on delivery</label>
+        <p class="err" id="err" hidden></p>
+        <button class="btn wide" type="submit">Place order</button>
+        <p class="muted small">Demo store: no payment is taken and nothing is shipped.</p>
+      </form>
+      <aside class="sum" id="sum"><p class="muted">Loading…</p></aside>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { readCart, writeCart, loadPrices, inr } from '../scripts/store.js'
+  const co = document.getElementById('co')
+  const titles = JSON.parse(co.dataset.titles)
+  const FREE = Number(co.dataset.free), FEE = Number(co.dataset.fee)
+  const lines = readCart().filter((l) => titles[l.sku])
+  if (!lines.length) location.replace('/cart')
+
+  loadPrices().then((prices) => {
+    const subtotal = lines.reduce((s, l) => s + prices[l.sku].price * l.qty, 0)
+    const ship = subtotal >= FREE ? 0 : FEE
+    document.getElementById('sum').innerHTML =
+      '<h3>Your order</h3>' +
+      lines.map((l) => `<p><span>${titles[l.sku]} × ${l.qty}</span><span>${inr(prices[l.sku].price * l.qty)}</span></p>`).join('') +
+      `<p><span>Delivery</span><span>${ship ? inr(ship) : 'Free'}</span></p><p class="total"><span>Total</span><span>${inr(subtotal + ship)}</span></p>`
+    co.dataset.total = subtotal + ship
+  })
+
+  document.getElementById('form').addEventListener('submit', (e) => {
+    e.preventDefault()
+    const f = Object.fromEntries(new FormData(e.target))
+    const problems = []
+    if (f.name.trim().length < 2) problems.push('your name')
+    if (!/^[6-9]\d{9}$/.test(f.phone.replace(/\D/g, '').slice(-10))) problems.push('a 10-digit mobile number')
+    if (!/^\S+@\S+\.\S+$/.test(f.email)) problems.push('a valid email')
+    if (f.address.trim().length < 6) problems.push('your address')
+    if (!f.city.trim()) problems.push('your city')
+    if (!/^\d{6}$/.test(f.pincode)) problems.push('a 6-digit PIN code')
+    const err = document.getElementById('err')
+    if (problems.length) {
+      err.textContent = 'Please enter ' + problems.join(', ') + '.'
+      err.hidden = false
+      return
+    }
+    const id = 'DS' + Date.now().toString().slice(-7)
+    sessionStorage.setItem('ds_last_order', JSON.stringify({ id, total: co.dataset.total, items: lines.length, payment: f.payment }))
+    writeCart([])
+    location.href = '/order?id=' + id
+  })
+</script>
